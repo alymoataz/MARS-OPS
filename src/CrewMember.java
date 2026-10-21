@@ -1,3 +1,4 @@
-public abstract  class CrewMember {
+public abstract  class CrewMember extends Agent {
 
+    
 }
