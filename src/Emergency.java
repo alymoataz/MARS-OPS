@@ -21,7 +21,7 @@ public class Emergency {
     private int severity;
 
 
-    public Emergency(String EmergencyID, String location,EmergencyStatus status, EmergencyType type, int severity){
+    public Emergency(String EmergencyID, String location, EmergencyType type, int severity){
 
         //validations
         if (EmergencyID==null || EmergencyID.isBlank()){
@@ -44,7 +44,7 @@ public class Emergency {
 
         this.EmergencyID=EmergencyID;
         this.location=location;
-        this.status=status;
+        this.status=EmergencyStatus.Reported;
         this.type=type;
         this.severity=severity;
     }
@@ -58,7 +58,7 @@ public class Emergency {
         return severity;
     }
 
-    public EmergencyStatus getStatus() {
+    public EmergencyStatus getEmergencyStatus() {
         return status;
     }
 
