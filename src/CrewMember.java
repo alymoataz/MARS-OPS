@@ -72,5 +72,6 @@ public abstract  class CrewMember extends Agent {
     public boolean hasSkill(Skill s) { return skills.contains(s); }
 
     public Set<Skill> getSkills() { return Collections.unmodifiableSet(skills); }
+    public boolean hasAllSkills(Set<Skill> required) { return skills.containsAll(required); }
 
 }
