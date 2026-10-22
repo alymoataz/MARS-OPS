@@ -58,6 +58,7 @@ public class Habitat extends Facility{
         lifeSupportActive=true;
     }
 
-    
+
+
 
 }

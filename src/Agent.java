@@ -29,7 +29,7 @@ public abstract class Agent {
     }
 
     public boolean isAvailable() {
-        return available &&isUsable();
+        return available && isUsable();
     }
 
     public boolean setName(String name){
