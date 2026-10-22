@@ -10,8 +10,8 @@ public class Facility {
         this.name = name;
         this.location = location;
         this.capacity = capacity;
-        this.operational = true;
-        this.inventory = new ResourceInventory();
+        this.operational = operational;
+        this.inventory = inventory;
     }
 
     public int getCapacity() {
