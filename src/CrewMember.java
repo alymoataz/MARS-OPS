@@ -1,13 +1,26 @@
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Set;
+
 public abstract  class CrewMember extends Agent {
     public enum HealthStatus{
         HEALTHY,
         INJURED,
         CRITICAL
     }
+    public enum Skill {
+        // Scientist
+        GEOLOGY, BIOLOGY,
+        // Engineer
+        STRUCTURAL_REPAIR, ELECTRICAL_REPAIR,
+        // Medical Officer
+        FIRST_AID, SURGERY
+    }
     private HealthStatus healthStatus;
     private int fatigue;
-    private final int MAX_FATIGUE =100;
-    private final int FATIGUE_LIMIT=50;
+    private static final int MAX_FATIGUE =100;
+    private static final int FATIGUE_LIMIT=50;
+    private final Set<Skill> skills = EnumSet.noneOf(Skill.class);
     public CrewMember(String name,String id){
         super(name, id);
         healthStatus=HealthStatus.HEALTHY;
@@ -52,5 +65,12 @@ public abstract  class CrewMember extends Agent {
         return true;
 
     }
+    public void addSkill(Skill s) {
+        if (s == null) throw new IllegalArgumentException("Skill cannot be null");
+        skills.add(s);
+    }
+    public boolean hasSkill(Skill s) { return skills.contains(s); }
+
+    public Set<Skill> getSkills() { return Collections.unmodifiableSet(skills); }
 
 }
