@@ -1,15 +1,9 @@
 public abstract class Agent {
     private String name,id;
-    public enum HealthStatus{
-        HEALTHY,
-        INJURED,
-        CRITICAL
-    }
     public enum Location{
         FACILITY,
         SURFACE
     }
-    private HealthStatus healthStatus;
     private Location currentLoc; //WAIT FOR FACILITY CLASS TO CHANGE THIS
     private boolean available;
 
@@ -18,7 +12,6 @@ public abstract class Agent {
             throw new IllegalArgumentException("Invalid name or id");
         this.name=name;
         this.id=id;
-        this.healthStatus=HealthStatus.HEALTHY;
         this.currentLoc=Location.SURFACE;
         this.available =true;
 
@@ -34,10 +27,6 @@ public abstract class Agent {
 
     public String getId() {
         return id;
-    }
-
-    public HealthStatus getHealthStatus() {
-        return healthStatus;
     }
 
     public Location getCurrentLoc() {
@@ -63,7 +52,7 @@ public abstract class Agent {
 
     public boolean assign(){
         if(!isAvailable()){
-            System.out.println("Agent "+name+ "is already on a mission or health state is critical");
+            System.out.println("Agent "+name+ " is already on a mission or not in usable condition");
             return false;
         }
         available =false;
@@ -72,21 +61,16 @@ public abstract class Agent {
 
     public boolean release(){
         if(available){
-            System.out.println("Agent "+name+ "is already free");
+            System.out.println("Agent "+name+ " is already free");
             return false;
         }
         available =true;
         return true;
     } //release doesnt use isavailable() bec he might get critical state while on mission so he wont get released
 
-    public void setHealthStatus(HealthStatus healthStatus){
-        this.healthStatus=healthStatus;
-    }
     public abstract boolean canPerform(Mission mission);
     public abstract boolean canHandleEmergency(Emergency emergency);
-    public boolean isUsable(){
-        return this.healthStatus!=HealthStatus.CRITICAL;
-    }
+    public abstract boolean isUsable();
 
 
 }
