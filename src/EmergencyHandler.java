@@ -9,6 +9,7 @@ public class EmergencyHandler {
     public EmergencyHandler(List <Agent> agents, List <Habitat> habitats){
         this.agents=agents;
         this.habitats=habitats;
+        oxygenLoss=10.0;
     }
 
 
@@ -98,7 +99,7 @@ public class EmergencyHandler {
         emergency.setEmergencyStatus(
                 Emergency.EmergencyStatus.InProgress);
 
-        boolean repaired = habitat.reduceOxygen();
+        boolean repaired = habitat.repairOxygenleak();
 
         if (repaired) {
             emergency.setEmergencyStatus(

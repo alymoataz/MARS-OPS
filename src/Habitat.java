@@ -59,6 +59,7 @@ public class Habitat extends Facility{
     }
 
 
-
-
+    public boolean repairOxygenleak() {
+        return true;
+    }
 }
