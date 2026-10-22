@@ -65,10 +65,16 @@ public abstract  class CrewMember extends Agent {
         return true;
 
     }
+
+    @Override
+    public boolean canPerform(Mission mission){ //WAIT FOR MISSION CLASS TO BE ABLE TO DO IT
+        return isAvailable() && hasAllSkills(mission.getRequiredSkills());
+    }
     public void addSkill(Skill s) {
         if (s == null) throw new IllegalArgumentException("Skill cannot be null");
         skills.add(s);
     }
+
     public boolean hasSkill(Skill s) { return skills.contains(s); }
 
     public Set<Skill> getSkills() { return Collections.unmodifiableSet(skills); }
