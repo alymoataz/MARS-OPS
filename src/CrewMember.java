@@ -1,4 +1,56 @@
 public abstract  class CrewMember extends Agent {
+    public enum HealthStatus{
+        HEALTHY,
+        INJURED,
+        CRITICAL
+    }
+    private HealthStatus healthStatus;
+    private int fatigue;
+    private final int MAX_FATIGUE =100;
+    private final int FATIGUE_LIMIT=50;
+    public CrewMember(String name,String id){
+        super(name, id);
+        healthStatus=HealthStatus.HEALTHY;
+        fatigue=0;
+    }
+    public HealthStatus getHealthStatus(){
+        return healthStatus;
+    }
+    public void setHealthStatus(HealthStatus healthStatus){
+        if(healthStatus==null) throw new IllegalArgumentException("Health status cannot be null");
+        this.healthStatus=healthStatus;
+    }
+    @Override
+    public boolean isUsable(){
+        return healthStatus!=HealthStatus.CRITICAL && fatigue<FATIGUE_LIMIT;
+    }
+    public int getFatigue() { return fatigue; }
 
-    
+    public boolean addFatigue(int amount){
+        if(amount<0){
+            System.out.println("invalid fatigue");
+            return false;
+        }
+        if(fatigue+amount>MAX_FATIGUE){
+            fatigue=MAX_FATIGUE;
+            return true;
+        }
+        this.fatigue+=amount;
+        return true;
+
+    }
+    public boolean rest(int amount){
+        if(amount<0 ){
+            System.out.println("amount cant be negative");
+            return false;
+        }
+        if(fatigue-amount<0){
+            fatigue=0;
+            return true;
+        }
+        fatigue-=amount;
+        return true;
+
+    }
+
 }

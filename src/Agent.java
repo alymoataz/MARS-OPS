@@ -69,7 +69,7 @@ public abstract class Agent {
     } //release doesnt use isavailable() bec he might get critical state while on mission so he wont get released
 
     public abstract boolean canPerform(Mission mission);
-    public abstract boolean canHandleEmergency(Emergency emergency);
+    public abstract boolean canHandleEmergency(Emergency e);
     public abstract boolean isUsable();
 
 
