@@ -10,7 +10,7 @@ public abstract class Agent {
         SURFACE
     }
     private HealthStatus healthStatus;
-    private Location currentLoc;
+    private Location currentLoc; //WAIT FOR FACILITY CLASS TO CHANGE THIS
     private boolean available;
 
     public Agent(String name,String id){
@@ -47,6 +47,7 @@ public abstract class Agent {
     public boolean isAvailable() {
         return available &&isUsable();
     }
+
     public boolean setName(String name){
         if(!isValidString(name)){
             System.out.println("invalid name");
@@ -55,23 +56,28 @@ public abstract class Agent {
         this.name=name;
         return true;
     }
+
     public void setLocation(Location location){
         this.currentLoc=location;
     }
-    public void assign(){
-        if(!available){
-            System.out.println("Agent "+name+ "is already on a mission");
-            return;
+
+    public boolean assign(){
+        if(!isAvailable()){
+            System.out.println("Agent "+name+ "is already on a mission or health state is critical");
+            return false;
         }
         available =false;
+        return true;
     }
-    public void release(){
+
+    public boolean release(){
         if(available){
             System.out.println("Agent "+name+ "is already free");
-            return;
+            return false;
         }
         available =true;
-    }
+        return true;
+    } //release doesnt use isavailable() bec he might get critical state while on mission so he wont get released
 
     public void setHealthStatus(HealthStatus healthStatus){
         this.healthStatus=healthStatus;
