@@ -1,10 +1,6 @@
 public abstract class Agent {
     private String name,id;
-    public enum Location{
-        FACILITY,
-        SURFACE
-    }
-    private Location currentLoc; //WAIT FOR FACILITY CLASS TO CHANGE THIS
+    private Facility location;
     private boolean available;
 
     public Agent(String name,String id){
@@ -12,7 +8,6 @@ public abstract class Agent {
             throw new IllegalArgumentException("Invalid name or id");
         this.name=name;
         this.id=id;
-        this.currentLoc=Location.SURFACE;
         this.available =true;
 
 
@@ -29,8 +24,8 @@ public abstract class Agent {
         return id;
     }
 
-    public Location getCurrentLoc() {
-        return currentLoc;
+    public Facility getCurrentLoc() {
+        return location ;
     }
 
     public boolean isAvailable() {
@@ -46,8 +41,8 @@ public abstract class Agent {
         return true;
     }
 
-    public void setLocation(Location location){
-        this.currentLoc=location;
+    public void setLocation(Facility location){
+        this.location=location;
     }
 
     public boolean assign(){
