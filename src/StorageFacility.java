@@ -1,39 +1,48 @@
 public class StorageFacility extends Facility {
-    private double water;
-    private double food;
-    private double fuel;
 
+    private double storageCapacity;
+    private double currentStorageUsed;
 
-    public StorageFacility(double oxygenCapacity, String name, String location, int capacity, boolean operational, double maxOxygen, double water, double food, double fuel) {
-        super(oxygenCapacity, name, location, capacity, operational, maxOxygen);
-        this.water = water;
-        this.food = food;
-        this.fuel = fuel;
+    public StorageFacility(String name, String location, int capacity,
+                           double storageCapacity) {
+        super(name, location, capacity);
+        this.storageCapacity = storageCapacity;
+        this.currentStorageUsed = 0;
+    }
+
+    public double getStorageCapacity() {
+        return storageCapacity;
+    }
+
+    public double getCurrentStorageUsed() {
+        return currentStorageUsed;
+    }
+
+    public double getAvailableSpace() {
+        return storageCapacity - currentStorageUsed;
+    }
+
+    public boolean hasAvailableSpace(double amount) {
+        return amount > 0 && amount <= getAvailableSpace();
     }
 
 
+    public boolean removeSupplies(double amount) {
+        if (amount <= 0 || amount > currentStorageUsed) {
+            return false;
+        }
 
-    public double getFood() {
-        return food;
+        currentStorageUsed -= amount;
+        return true;
     }
 
-    public double getFuel() {
-        return fuel;
-    }
 
-    public double getWater() {
-        return water;
-    }
-
-    public void setFood(double food) {
-        this.food = food;
-    }
-
-    public void setFuel(double fuel) {
-        this.fuel = fuel;
-    }
-
-    public void setWater(double water) {
-        this.water = water;
+    public boolean storeSupplies(double amount){
+        if((amount+currentStorageUsed)>storageCapacity){
+            System.out.println("Exceeds storage capacity");
+            return false;
+        }
+        currentStorageUsed=+amount;
+        return true;
     }
 }

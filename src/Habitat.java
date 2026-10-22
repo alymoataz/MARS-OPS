@@ -1,22 +1,61 @@
 public class Habitat extends Facility{
+    private final int crewCapacity;
+    private int currentOccupants;
+    private boolean lifeSupportActive;
 
-    public Habitat(double oxygenCapacity, String name, String location, int capacity, boolean operational, double maxOxygen) {
-        super(oxygenCapacity, name, location, capacity, operational,maxOxygen);
+    public Habitat(String name, String location, int capacity, boolean operational, ResourceInventory inventory, int currentOccupants, boolean lifeSupportActive,int crewCapacity) {
+        super(name, location, capacity, operational, inventory);
+        this.currentOccupants = currentOccupants;
+        this.lifeSupportActive = lifeSupportActive;
+        this.crewCapacity = crewCapacity;
     }
 
-    @Override
-    public boolean setOxygenCapacity(double oxygenCapacity) {
-        if(oxygenCapacity>maxOxygen){
-            System.out.println("Amount exceeds maximum capacity");
+    public int getCrewCapacity() {
+        return crewCapacity;
+    }
+
+    public int getCurrentOccupants() {
+        return currentOccupants;
+    }
+
+    public void setCurrentOccupants(int currentOccupants) {
+        this.currentOccupants = currentOccupants;
+    }
+
+    public void setLifeSupportActive(boolean lifeSupportActive) {
+        this.lifeSupportActive = lifeSupportActive;
+    }
+
+
+    public void reduceOxygen(double amount) {
+        if (amount > 0 ) {
+            getInventory().setOxygen(amount);
+        }
+    }
+
+    public boolean hasAvailableSpace(){
+        return currentOccupants<crewCapacity;
+    }
+    public boolean addOccupant(){
+        if(!isOperational() || !hasAvailableSpace()){
+            System.out.println("Cannot add occupant.");
             return false;
         }
-        return super.setOxygenCapacity(oxygenCapacity);
+        currentOccupants++;
+        return true;
     }
 
-    public void reduceOxygen(double amount){
-        if(amount>0 && amount<=oxygenCapacity)
-            oxygenCapacity-=amount;
+    public boolean removeOccupant(){
+        if(currentOccupants<=0){
+            System.out.println("No occupants.");
+            return false;
+        }
+        currentOccupants--;
+        return true;
     }
 
+    public void activateLifeSupport(){
+        lifeSupportActive=true;
+    }
 
 }

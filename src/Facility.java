@@ -3,17 +3,15 @@ public class Facility {
     private String location;
     private int capacity;
     private boolean operational;
-    private double oxygenCapacity;  //amount of stored oxygen
-    private double maxOxygen;  //maximum amount of oxygen facility can store
+    private ResourceInventory inventory;
 
 
-    public Facility(double oxygenCapacity, String name, String location, int capacity, boolean operational, double maxOxygen) {
-        this.oxygenCapacity = oxygenCapacity;
+    public Facility(String name, String location, int capacity, boolean operational, ResourceInventory inventory) {
         this.name = name;
         this.location = location;
         this.capacity = capacity;
-        this.operational = operational;
-        this.maxOxygen = maxOxygen;
+        this.operational = true;
+        this.inventory = new ResourceInventory();
     }
 
     public int getCapacity() {
@@ -28,29 +26,6 @@ public class Facility {
         return name;
     }
 
-    public double getOxygen() {
-        return maxOxygen;
-    }
-
-    public double getOxygenCapacity() {
-        return oxygenCapacity;
-    }
-
-    public boolean setMaxOxygen(double maxOxygen) {
-        if(maxOxygen<0){
-            System.out.println("Invalid: negative oxygen.");
-            return false;}
-        this.maxOxygen = maxOxygen;
-        return true;
-    }
-
-    public boolean setOxygenCapacity(double oxygenCapacity) {
-        if(oxygenCapacity<0){
-            System.out.println("Invalid: negative oxygen capacity.");
-            return false; }
-        this.oxygenCapacity = oxygenCapacity;
-        return true;
-    }
 
     public boolean setCapacity(int capacity) {
         if(capacity<0){
@@ -68,7 +43,19 @@ public class Facility {
         this.name = name;
     }
 
-    public void setOperational(boolean operational) {
-        this.operational = operational;
+    public boolean isOperational() {
+        return operational;
+    }
+
+    public void shutdown() {
+        this.operational = false;
+    }
+
+    public void restoreOperation() {
+        this.operational = true;
+    }
+
+    public ResourceInventory getInventory() {
+        return inventory;
     }
 }
