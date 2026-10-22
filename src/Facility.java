@@ -13,6 +13,7 @@ public class Facility {
         this.operational = true;
         this.inventory = inventory;
     }
+    
 
     public int getCapacity() {
         return capacity;

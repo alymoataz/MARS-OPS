@@ -23,7 +23,7 @@ public abstract class Robot extends Agent {
     }
     public boolean drainBattery(int amount){
         if(amount<0){
-            System.out.println("invalidd amount");
+            System.out.println("invalid amount");
             return false;
         }
         if(batteryLevel-amount<0) {
