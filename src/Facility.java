@@ -6,12 +6,12 @@ public class Facility {
     private ResourceInventory inventory;
 
 
-    public Facility(String name, String location, int capacity, boolean operational, ResourceInventory inventory) {
+    public Facility(String name, String location, int capacity,  ResourceInventory inventory) {
         this.name = name;
         this.location = location;
         this.capacity = capacity;
         this.operational = true;
-        this.inventory = new ResourceInventory();
+        this.inventory = inventory;
     }
 
     public int getCapacity() {

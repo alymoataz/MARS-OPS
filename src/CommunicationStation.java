@@ -45,5 +45,5 @@ public class CommunicationStation extends Facility {
     public void disconnect() {
         connected = false;
     }
-    
+
 }
