@@ -4,11 +4,13 @@ public class EmergencyHandler {
 
     private List<Agent> agents;
     private List<Habitat> habitats;
+    private List<Laboratory> laboratories;
     private double oxygenLoss;
 
-    public EmergencyHandler(List <Agent> agents, List <Habitat> habitats){
+    public EmergencyHandler(List <Agent> agents, List <Habitat> habitats List<Laboratory> laboratories){
         this.agents=agents;
         this.habitats=habitats;
+        this.laboratories=laboratories;
         oxygenLoss=10.0;
     }
 
@@ -49,10 +51,12 @@ public class EmergencyHandler {
    }
     private void handleOxygenLeak(Emergency emergency) {
 
+
+
         Habitat habitat = null;
 
         for (Habitat h : habitats) {
-            if (h.getLocation().equals(emergency.getLocation())) {
+            if (h.getLocation().equalsIgnoreCase(emergency.getLocation())) {
                 habitat = h;
                 break;
             }
@@ -64,13 +68,13 @@ public class EmergencyHandler {
             return;
         }
 
-// Deduct the initial oxygen loss
+// Deducting the initial oxygen loss , Problem begins
         habitat.reduceOxygen(oxygenLoss);
 
         Agent human = null;
         Agent robot = null;
 
-// Find a capable human and robot
+// Finding a capable human and robot
         for (Agent a : agents) {
             if (a.isAvailable() && a.canHandleEmergency(emergency)) {
 
@@ -84,7 +88,7 @@ public class EmergencyHandler {
 
 // Both responders are required
         if (human == null || robot == null) {
-            habitat.reduceOxygen(oxygenLoss);
+            habitat.reduceOxygen(oxygenLoss); //corrupt increases!
             emergency.setEmergencyStatus(
                     Emergency.EmergencyStatus.Unresolved);
             return;
@@ -117,6 +121,19 @@ public class EmergencyHandler {
 
 
     private void handleFire(Emergency emergency){
+
+        Laboratory laboratory=null;
+
+        for (Laboratory l : laboratories){
+            if(Laboratory.location.equalsIgnoreCase(emergency.getLocation()))
+               laboratory=l;
+               break;
+        }
+
+        if(laboratory==null){
+            emergency.setEmergencyStatus(Emergency.EmergencyStatus.Unresolved); //lab location in emergency doesn't match a location in my list of labs
+        }
+        
 
     }
 
