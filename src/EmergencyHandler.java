@@ -7,7 +7,7 @@ public class EmergencyHandler {
     private List<Laboratory> laboratories;
     private double oxygenLoss;
 
-    public EmergencyHandler(List <Agent> agents, List <Habitat> habitats List<Laboratory> laboratories){
+    public EmergencyHandler(List <Agent> agents, List <Habitat> habitats, List<Laboratory> laboratories){
         this.agents=agents;
         this.habitats=habitats;
         this.laboratories=laboratories;
@@ -97,8 +97,6 @@ public class EmergencyHandler {
         human.assign();
         robot.assign();
 
-        human.setLocation(emergency.getLocation());
-        robot.setLocation(emergency.getLocation());
 
         emergency.setEmergencyStatus(
                 Emergency.EmergencyStatus.InProgress);
@@ -125,7 +123,7 @@ public class EmergencyHandler {
         Laboratory laboratory=null;
 
         for (Laboratory l : laboratories){
-            if(Laboratory.location.equalsIgnoreCase(emergency.getLocation()))
+            if(laboratory.getLocation().equalsIgnoreCase(emergency.getLocation()))
                laboratory=l;
                break;
         }
@@ -137,7 +135,7 @@ public class EmergencyHandler {
         Agent responder =null; // search agent in list
 
         for (Agent a : agents){
-            if(a.canHandleEmergency() && a.isAvailable()){
+            if(a.canHandleEmergency(emergency) && a.isAvailable()){
                 responder=a; //copy reference from agent reference a a to agent refernece called responder
                 break;
             }
@@ -159,7 +157,7 @@ public class EmergencyHandler {
             }
 
             responder.release();
-            
+
         }
 
 
