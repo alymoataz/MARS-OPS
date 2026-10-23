@@ -15,20 +15,20 @@ public class Emergency {
     }
 
     private String EmergencyID;
-    private String location;
+    private Facility location;
     private EmergencyStatus status;
     private EmergencyType type;
     private int severity;
 
 
-    public Emergency(String EmergencyID, String location, EmergencyType type, int severity){
+    public Emergency(String EmergencyID, Facility location, EmergencyType type, int severity){
 
         //validations
         if (EmergencyID==null || EmergencyID.isBlank()){
             throw new IllegalArgumentException("ID invalid");
         }
 
-        if (location==null || location.isBlank()) {
+        if (location==null) {
             throw new IllegalArgumentException("location invalid");
         }
 
@@ -62,7 +62,7 @@ public class Emergency {
         return status;
     }
 
-    public String getLocation() {
+    public Facility getLocation() {
         return location;
     }
 
@@ -81,4 +81,5 @@ public class Emergency {
             return true; }
     }
 
-}
+
+

@@ -169,6 +169,60 @@ public class EmergencyHandler {
 
     private void handleMedicalEmergency(Emergency emergency){
 
+        CrewMember patient = null;
+
+        for (Agent a : agents) {
+            if (a instanceof CrewMember
+                    && a.getCurrentLoc() != null
+                    && a.getCurrentLoc().equals(emergency.getLocation())) {
+
+                patient = (CrewMember) a; //casting to use patient. with crewmember fields
+                break;
+            }
+        }
+
+        Agent medicalOfficer = null;
+
+        for (Agent a : agents) {
+            if (a.isAvailable() && a.canHandleEmergency(emergency)) {
+                medicalOfficer = a;
+                break;
+            }
+        }
+
+        if (patient == null || medicalOfficer == null) {
+            emergency.setEmergencyStatus(
+                    Emergency.EmergencyStatus.UNRESOLVED);
+            return;
+        }
+
+        Facility facility = patient.getCurrentLoc();
+
+        if (facility == null || !facility.isAvailable()) {
+            emergency.setEmergencyStatus(
+                    Emergency.EmergencyStatus.Unresolved);
+            return;
+        }
+
+        if (!facility.hasMedicalSupplies()) {
+            emergency.setEmergencyStatus(
+                    Emergency.EmergencyStatus.Unresolved);
+            return;
+        }
+
+        medicalOfficer.assign();
+        medicalOfficer.setLocation(facility);
+
+        emergency.setEmergencyStatus(
+                Emergency.EmergencyStatus.InProgress);
+
+        facility.consumeMedicalSupplies(1);
+        patient.increaseHealth(20);
+
+        emergency.setEmergencyStatus(
+                Emergency.EmergencyStatus.Resolved);
+
+        medicalOfficer.release();
 
     }
 
