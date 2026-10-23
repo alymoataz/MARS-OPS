@@ -192,7 +192,7 @@ public class EmergencyHandler {
 
         if (patient == null || medicalOfficer == null) {
             emergency.setEmergencyStatus(
-                    Emergency.EmergencyStatus.UNRESOLVED);
+                    Emergency.EmergencyStatus.Unresolved);
             return;
         }
 
