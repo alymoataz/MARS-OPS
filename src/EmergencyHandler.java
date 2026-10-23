@@ -57,7 +57,7 @@ public class EmergencyHandler {
         Habitat habitat = null;
 
         for (Habitat h : habitats) {
-            if (h.getLocation().equalsIgnoreCase(emergency.getLocation())) {
+            if (h.getLocation().equals(emergency.getLocation())) {
                 habitat = h;
                 break;
             }
@@ -125,7 +125,7 @@ public class EmergencyHandler {
         Laboratory laboratory=null;
 
         for (Laboratory l : laboratories){
-            if(laboratory.getLocation().equalsIgnoreCase(emergency.getLocation()))
+            if(laboratory.getLocation().equals(emergency.getLocation()))
                laboratory=l;
                break;
         }
