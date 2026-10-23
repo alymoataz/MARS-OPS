@@ -39,6 +39,6 @@ public class Laboratory extends Facility {
     }
 
     public boolean repairFire() {
-        return true; 
+        return true;
     }
 }

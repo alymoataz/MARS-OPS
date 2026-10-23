@@ -152,10 +152,14 @@ public class EmergencyHandler {
 
             boolean extinguished= laboratory.repairFire();
 
+            if(extinguished){
+                emergency.setEmergencyStatus(Emergency.EmergencyStatus.Resolved);
+            } else {
+                emergency.setEmergencyStatus(Emergency.EmergencyStatus.Unresolved);
+            }
 
-
-
-
+            responder.release();
+            
         }
 
 
