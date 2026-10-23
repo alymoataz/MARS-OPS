@@ -5,6 +5,7 @@ public class EmergencyHandler {
     private List<Agent> agents;
     private List<Habitat> habitats;
     private List<Laboratory> laboratories;
+    private List<Rover> rovers; //lessa joe hy3emel el rover class
     private double oxygenLoss;
 
     public EmergencyHandler(List <Agent> agents, List <Habitat> habitats, List<Laboratory> laboratories){
@@ -96,7 +97,8 @@ public class EmergencyHandler {
 
         human.assign();
         robot.assign();
-
+        human.setLocation(habitat); //moving them, dispatching
+        robot.setLocation(habitat);
 
         emergency.setEmergencyStatus(
                 Emergency.EmergencyStatus.InProgress);
@@ -146,6 +148,7 @@ public class EmergencyHandler {
             }
 
             responder.assign();
+            responder.setLocation(laboratory);
             emergency.setEmergencyStatus(Emergency.EmergencyStatus.InProgress);
 
             boolean extinguished= laboratory.repairFire();
@@ -164,17 +167,17 @@ public class EmergencyHandler {
     }
 
 
-
-
-    private void handleRoverbreakdown(Emergency emergency){
-
-
-    }
-
     private void handleMedicalEmergency(Emergency emergency){
 
 
     }
+
+
+    private void handleRoverbreakdown(Emergency emergency){
+
+    }
+
+
 
 
 
