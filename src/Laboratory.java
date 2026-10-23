@@ -38,4 +38,7 @@ public class Laboratory extends Facility {
         contaminationDetected=true;
     }
 
+    public boolean repairFire() {
+        return true; 
+    }
 }

@@ -133,7 +133,31 @@ public class EmergencyHandler {
         if(laboratory==null){
             emergency.setEmergencyStatus(Emergency.EmergencyStatus.Unresolved); //lab location in emergency doesn't match a location in my list of labs
         }
-        
+
+        Agent responder =null; // search agent in list
+
+        for (Agent a : agents){
+            if(a.canHandleEmergency() && a.isAvailable()){
+                responder=a; //copy reference from agent reference a a to agent refernece called responder
+                break;
+            }
+
+            if(responder==null){
+                emergency.setEmergencyStatus(Emergency.EmergencyStatus.Unresolved);
+                return;
+            }
+
+            responder.assign();
+            emergency.setEmergencyStatus(Emergency.EmergencyStatus.InProgress);
+
+            boolean extinguished= laboratory.repairFire();
+
+
+
+
+
+        }
+
 
     }
 
