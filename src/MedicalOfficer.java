@@ -7,6 +7,7 @@ public class MedicalOfficer extends CrewMember{
 
     @Override
     public boolean canHandleEmergency(Emergency e){ //WAIT ALSO
-        return false;// just for now
+        return (e.getEmergencyType()== Emergency.EmergencyType.MedicalEmergency||e.getEmergencyType()== Emergency.EmergencyType.Fire);
+
     }
 }

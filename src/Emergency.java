@@ -32,7 +32,7 @@ public class Emergency {
             throw new IllegalArgumentException("location invalid");
         }
 
-        if (severity<1 || severity >1){
+        if (severity<1 || severity >5){
                 throw new IllegalArgumentException("Severity invalid");
             }
 
@@ -66,7 +66,7 @@ public class Emergency {
         return location;
     }
 
-    public EmergencyType getType() {
+    public EmergencyType getEmergencyType() {
         return type;
     }
 

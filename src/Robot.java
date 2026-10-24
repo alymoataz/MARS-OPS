@@ -56,5 +56,9 @@ public abstract class Robot extends Agent {
     public boolean isUsable(){
         return damageStatus==DamageStatus.OPERATIONAL && batteryLevel>0;
     }
+    @Override
+    public boolean canPerform(Mission mission){ //WAIT FOR MISSION CLASS TO BE ABLE TO DO IT
+        return isAvailable() && hasAllSkills(mission.getRequiredSkills());
+    }
 
 }

@@ -8,7 +8,7 @@ public class ExplorationRover extends Robot{
     }
 
     @Override
-    public boolean canHandleEmergency(Emergency e){ //WILL BE DONE LATER
+    public boolean canHandleEmergency(Emergency e){ //NO EMERGENCY NEEDS EXPLORATION ROVER
         return false;
     }
 }
