@@ -13,7 +13,7 @@ public class Facility {
         this.operational = true;
         this.inventory = inventory;
     }
-    
+
 
     public int getCapacity() {
         return capacity;
@@ -58,5 +58,15 @@ public class Facility {
 
     public ResourceInventory getInventory() {
         return inventory;
+    }
+
+    public boolean hasMedicalSupplies (){
+        if (inventory.getMedicalSupplies()<1) return false;
+        return true;
+
+    }
+
+    public void consumeMedicalSupplies(){
+        inventory.removeMedicalSupplies(1);
     }
 }

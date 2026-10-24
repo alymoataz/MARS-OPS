@@ -3,16 +3,12 @@ import java.util.List;
 public class EmergencyHandler {
 
     private List<Agent> agents;
-    private List<Habitat> habitats;
-    private List<Laboratory> laboratories;
-    private List<Rover> rovers; //lessa joe hy3emel el rover class
-    private double oxygenLoss;
+    private List<Facility> facilities;
 
-    public EmergencyHandler(List <Agent> agents, List <Habitat> habitats, List<Laboratory> laboratories){
+
+    public EmergencyHandler(List <Agent> agents, List <Facility> facilities){
         this.agents=agents;
-        this.habitats=habitats;
-        this.laboratories=laboratories;
-        oxygenLoss=10.0;
+        this.facilities=facilities;
     }
 
 
@@ -50,15 +46,16 @@ public class EmergencyHandler {
 
 
    }
+
     private void handleOxygenLeak(Emergency emergency) {
 
 
 
         Habitat habitat = null;
 
-        for (Habitat h : habitats) {
-            if (h.getLocation().equals(emergency.getLocation())) {
-                habitat = h;
+        for (Facility f : facilities) {  //see which of your habitats is affected
+            if (f instanceof Habitat && f.getLocation().equalsIgnoreCase(emergency.getLocation().getLocation())) {
+                habitat = (Habitat) f;
                 break;
             }
         }
@@ -70,7 +67,7 @@ public class EmergencyHandler {
         }
 
 // Deducting the initial oxygen loss , Problem begins
-        habitat.reduceOxygen(oxygenLoss);
+        habitat.reduceOxygen(10);
 
         Agent human = null;
         Agent robot = null;
@@ -89,7 +86,7 @@ public class EmergencyHandler {
 
 // Both responders are required
         if (human == null || robot == null) {
-            habitat.reduceOxygen(oxygenLoss); //corrupt increases!
+            habitat.reduceOxygen(10); //corrupt increases!
             emergency.setEmergencyStatus(
                     Emergency.EmergencyStatus.Unresolved);
             return;
@@ -109,7 +106,7 @@ public class EmergencyHandler {
             emergency.setEmergencyStatus(
                     Emergency.EmergencyStatus.Resolved);
         } else {
-            habitat.reduceOxygen(oxygenLoss);
+            habitat.reduceOxygen(10);
             emergency.setEmergencyStatus(
                     Emergency.EmergencyStatus.Unresolved);
         }
@@ -124,9 +121,9 @@ public class EmergencyHandler {
 
         Laboratory laboratory=null;
 
-        for (Laboratory l : laboratories){
-            if(laboratory.getLocation().equals(emergency.getLocation()))
-               laboratory=l;
+        for (Facility f : facilities){
+            if(f instanceof Laboratory && f.getLocation().equals(emergency.getLocation().getLocation()))
+               laboratory=(Laboratory) f;
                break;
         }
 
@@ -172,19 +169,17 @@ public class EmergencyHandler {
         CrewMember patient = null;
 
         for (Agent a : agents) {
-            if (a instanceof CrewMember
-                    && a.getCurrentLoc() != null
-                    && a.getCurrentLoc().equals(emergency.getLocation())) {
+            if (a instanceof CrewMember && a.getCurrentLoc().getLocation().equals(emergency.getLocation().getLocation())){ //law a points to a crewmember object or any subclasses of it
 
                 patient = (CrewMember) a; //casting to use patient. with crewmember fields
-                break;
+                break;                   //law mn8er casting invalid
             }
         }
 
         Agent medicalOfficer = null;
 
         for (Agent a : agents) {
-            if (a.isAvailable() && a.canHandleEmergency(emergency)) {
+            if (a.isAvailable() && a.canHandleEmergency(emergency) && a.isAvailable()) {
                 medicalOfficer = a;
                 break;
             }
@@ -196,9 +191,17 @@ public class EmergencyHandler {
             return;
         }
 
-        Facility facility = patient.getCurrentLoc();
+        Facility facility=null;
 
-        if (facility == null || !facility.isAvailable()) {
+        for(Facility f : facilities){
+            if(f.getLocation().equalsIgnoreCase(emergency.getLocation().getLocation())){
+                facility=f;
+                break;
+            }
+        }
+
+
+        if (facility == null) {
             emergency.setEmergencyStatus(
                     Emergency.EmergencyStatus.Unresolved);
             return;
@@ -211,13 +214,13 @@ public class EmergencyHandler {
         }
 
         medicalOfficer.assign();
-        medicalOfficer.setLocation(facility);
+        medicalOfficer.setLocation(facility); //move to patient's injured facility
 
         emergency.setEmergencyStatus(
                 Emergency.EmergencyStatus.InProgress);
 
-        facility.consumeMedicalSupplies(1);
-        patient.increaseHealth(20);
+        facility.consumeMedicalSupplies();
+        patient.increaseHealth();
 
         emergency.setEmergencyStatus(
                 Emergency.EmergencyStatus.Resolved);
@@ -229,7 +232,50 @@ public class EmergencyHandler {
 
     private void handleRoverbreakdown(Emergency emergency){
 
-    }
+
+
+            Facility location = emergency.getLocation();
+
+
+            if (!(location instanceof Rover)) {
+                System.out.println("Emergency location is not a rover.");
+                emergency.setEmergencyStatus(Emergency.EmergencyStatus.Unresolved);
+                return;
+            }
+
+
+            Rover rover = (Rover) location;
+
+
+            Agent responder = null;
+
+            for (Agent a : agents) {
+                if (a.isAvailable() && a.canHandleEmergency(emergency)) {
+                    responder = a;
+                    break;
+                }
+            }
+
+
+            if (responder == null) {
+                System.out.println("No available agent to repair the rover");
+                emergency.setEmergencyStatus(Emergency.EmergencyStatus.Unresolved);
+                return;
+            }
+
+
+            responder.assign();
+            emergency.setEmergencyStatus(Emergency.EmergencyStatus.InProgress);
+
+
+            rover.repair();
+
+        emergency.setEmergencyStatus(Emergency.EmergencyStatus.Resolved);
+
+
+            responder.release();
+        }
+
 
 
 

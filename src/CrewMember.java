@@ -80,4 +80,11 @@ public abstract  class CrewMember extends Agent {
     public Set<Skill> getSkills() { return Collections.unmodifiableSet(skills); }
     public boolean hasAllSkills(Set<Skill> required) { return skills.containsAll(required); }
 
+    public void increaseHealth(){
+        if(healthStatus=HealthStatus.HEALTHY) {
+            System.out.println("Crewmember already healthy");
+            return;
+        }
+        healthStatus=HealthStatus.HEALTHY;
+    }
 }
