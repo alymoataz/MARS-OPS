@@ -3,12 +3,14 @@ public class ExplorationRover extends Robot{
         super(name,id);
     }
     @Override
-    public boolean canPerform(Mission mission){ //WILL BE DONE LATER
-        return false;
+    public boolean canPerform(Mission mission){
+
+        return isAvailable();
     }
 
     @Override
     public boolean canHandleEmergency(Emergency e){ //NO EMERGENCY NEEDS EXPLORATION ROVER
+
         return false;
     }
 }

@@ -3,8 +3,8 @@ public class Drone extends Robot {
         super(name,id);
     }
     @Override
-    public boolean canPerform(Mission mission){ //WILL BE DONE LATER
-        return false;
+    public boolean canPerform(Mission mission){
+        return isAvailable();
     }
 
     @Override

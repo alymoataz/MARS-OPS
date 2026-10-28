@@ -3,12 +3,12 @@ public class RepairRobot extends Robot{
         super(name,id);
     }
     @Override
-    public boolean canPerform(Mission mission){ //WILL BE DONE LATER
-        return false;
+    public boolean canPerform(Mission mission){
+        return isAvailable();
     }
 
     @Override
-    public boolean canHandleEmergency(Emergency e){ //WILL BE DONE LATER
+    public boolean canHandleEmergency(Emergency e){
         return(e.getEmergencyType()== Emergency.EmergencyType.OxygenLeak||e.getEmergencyType()== Emergency.EmergencyType.RoverBreakdown);
 
     }

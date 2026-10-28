@@ -67,7 +67,10 @@ public abstract  class CrewMember extends Agent {
     }
 
     @Override
-    public boolean canPerform(Mission mission){ //WAIT FOR MISSION CLASS TO BE ABLE TO DO IT
+    public boolean canPerform(Mission mission){
+        if(mission==null){
+            return false;
+        }
         return isAvailable() && hasAllSkills(mission.getRequiredSkills());
     }
     public void addSkill(Skill s) {
