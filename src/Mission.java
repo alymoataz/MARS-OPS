@@ -19,6 +19,12 @@ public abstract class Mission {
         if (duration <= 0 || requiredSkills == null || assignedAgents == null){
             throw new IllegalArgumentException("Mission constructor argument(s) wrong.");
         }
+        if (assignedAgents.contains(null)) {
+            throw new IllegalArgumentException("Assigned agents cannot contain null.");
+        }
+        if (new HashSet<>(assignedAgents).size() != assignedAgents.size()) {
+            throw new IllegalArgumentException("Duplicate agents are not allowed.");
+        }
         this.status = MissionStatus.CREATED;
         this.duration = duration;
         this.elapsedTime = 0;
@@ -40,15 +46,14 @@ public abstract class Mission {
     public List<Agent> getAssignedAgents(){
         return List.copyOf(assignedAgents);
     }
-    //make assignAgent method
-    //
+
     public String getFailureReason(){
         return failureReason;
     }
     public boolean advanceTime(){
         if (status == MissionStatus.IN_PROGRESS){
             elapsedTime++;
-            if (elapsedTime ==  duration){
+            if (elapsedTime >=  duration){
                 this.complete();
             }
             return true;
@@ -69,7 +74,7 @@ public abstract class Mission {
         }
         if (status != MissionStatus.FAILED && status != MissionStatus.COMPLETED){
             failureReason = reason;
-            if (status == MissionStatus.IN_PROGRESS){
+            if (status == MissionStatus.IN_PROGRESS || status == MissionStatus.ASSIGNED){
                 releaseAssignedAgents();
             }
             status = MissionStatus.FAILED;
@@ -78,31 +83,52 @@ public abstract class Mission {
         }
         return false;
     }
+public boolean assignAgents() {
+    if (status != MissionStatus.CREATED) {
+        return false;
+    }
+    int assignedCount = 0;
+    for (int i = 0; i < assignedAgents.size(); i++) {
+        if (!assignedAgents.get(i).assign()) {
+            for (int j = 0; j < assignedCount; j++) {// release only previously assigned agents
+                assignedAgents.get(j).release();
+            }
+            reject("One or more assigned agents were unavailable.");
+            return false;
+        }
+        assignedCount++;
+    }
+    return true;
+}
     private void releaseAssignedAgents(){
         for (int i = 0; i < assignedAgents.size(); i++){//releasing agents
             assignedAgents.get(i).release();
         }
     }
-    public boolean accept(){
+    public boolean accept(){//make sure assignAgents() is called before accept()
         if (status == MissionStatus.CREATED){
             status = MissionStatus.ASSIGNED;
-            start();
             return true;
         }
         return false;
     }
-    public boolean reject(){
+    public boolean reject(String reason){
         if (status == MissionStatus.CREATED){
-            if(fail("Mission Rejected.")){
+            if(fail(reason)){
                 return true;
             }
         }
         return false;
     }
-    private void start(){
+    public boolean reject() {
+        return reject("Mission Rejected.");
+    }
+    public boolean start(){
         if(status == MissionStatus.ASSIGNED){
             status = MissionStatus.IN_PROGRESS;
+            return true;
         }
+        return false;
     }
     
 }
