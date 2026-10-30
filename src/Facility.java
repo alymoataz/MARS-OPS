@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class Facility {
+public class Facility implements Repairable{
     private String name;
     private String location;
     private int capacity;
