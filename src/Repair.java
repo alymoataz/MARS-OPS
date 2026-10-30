@@ -53,4 +53,15 @@ public class Repair extends Mission {
         }
         return hasEngineer && hasRepairRobot;
     }
+    
+    @Override
+    public boolean complete() {
+        boolean completed = super.complete();
+
+        if (completed) {
+            target.restoreOperation();
+        }
+
+        return completed;
+    }
 }
