@@ -1,16 +1,16 @@
 public class Laboratory extends Facility {
-    private String equipmentCount;
+    private int equipmentCount;
     private boolean experimentInProgress;
     private boolean contaminationDetected;
 
-    public Laboratory(String name, String location, int capacity, boolean operational, String equipmentCount, boolean experimentInProgress,boolean contaminationDetected) {
-        super(name, location, capacity, operational);
+    public Laboratory(String name, String location, int capacity, ResourceInventory inventory, int equipmentCount) {
+        super(name, location, capacity, inventory);
         this.equipmentCount = equipmentCount;
         this.experimentInProgress = false;
         this.contaminationDetected = false;
     }
 
-    public String getEquipmentCount() {
+    public int getEquipmentCount() {
         return equipmentCount;
     }
 
@@ -40,5 +40,8 @@ public class Laboratory extends Facility {
 
     public boolean repairFire() {
         return true;
+    }
+    public boolean hasEnoughEquipment(int required) {
+        return equipmentCount >= required;
     }
 }
