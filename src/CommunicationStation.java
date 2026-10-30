@@ -4,9 +4,9 @@ public class CommunicationStation extends Facility {
     private double signalStrength;
     private boolean connected;
 
-    public CommunicationStation(String name, String location,
-                                int capacity) {
-        super(name, location, capacity);
+    public CommunicationStation(String name, String location, int capacity, ResourceInventory inventory) {
+        super(name, location, capacity, inventory);
+
         this.signalAvailable = false;
         this.signalStrength = 0;
         this.connected = false;
