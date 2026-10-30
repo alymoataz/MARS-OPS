@@ -3,8 +3,8 @@ public class RepairRobot extends Robot{
         super(name,id);
     }
     @Override
-    public boolean canPerform(Mission mission){
-        return isAvailable();
+    public boolean canPerform(Mission mission) {
+        return mission instanceof Repair && isAvailable();
     }
 
     @Override
