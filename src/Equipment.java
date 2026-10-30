@@ -1,4 +1,4 @@
-public class Equipment {
+public class Equipment implements Repairable {
     private String name;
     private boolean operational;
 
@@ -15,6 +15,7 @@ public class Equipment {
         return name;
     }
 
+    @Override
     public boolean isOperational() {
         return operational;
     }
@@ -23,7 +24,8 @@ public class Equipment {
         operational = false;
     }
 
-    public void repair() {
+    @Override
+    public void restoreOperation() {
         operational = true;
     }
 }
