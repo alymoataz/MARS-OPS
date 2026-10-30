@@ -8,15 +8,18 @@ public class Exploration extends Mission {
 
     @Override
     public boolean validateRequirements() {
+        boolean hasRover = false;
+        boolean hasGeologist = false;
+
         for (Agent agent : getAssignedAgents()) {
-            if (agent instanceof ExplorationRover) {//rover is part of assignedAgents
-                ExplorationRover rover = (ExplorationRover) agent;
-                if (rover.canExplore()) {
-                    return true;
-                }
+            if (agent instanceof ExplorationRover && agent.canPerform(this)) {
+                hasRover = true;
+            }
+            if (agent instanceof Scientist && agent.canPerform(this) && agent.isUsable()) {
+                hasGeologist = true;
             }
         }
 
-        return false;
+        return hasRover && hasGeologist;
     }
 }
