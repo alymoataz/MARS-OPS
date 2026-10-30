@@ -15,6 +15,7 @@ public abstract class Mission {
     private Set<CrewMember.Skill> requiredSkills;
     private ArrayList<Agent> assignedAgents;//the team intended for this mission
     private String failureReason;
+    private boolean agentsAssigned;
     public Mission(int duration, Set<CrewMember.Skill> requiredSkills, List<Agent> assignedAgents){// check in Colony that assignedAgents is not an empty list
         if (duration <= 0 || requiredSkills == null || assignedAgents == null){
             throw new IllegalArgumentException("Mission constructor argument(s) wrong.");
@@ -30,6 +31,7 @@ public abstract class Mission {
         this.elapsedTime = 0;
         this.assignedAgents = new ArrayList<>(assignedAgents);
         this.requiredSkills = new HashSet<>(requiredSkills);
+        this.agentsAssigned = false;
     }
     public MissionStatus getStatus(){
         return status;
@@ -102,6 +104,7 @@ public boolean assignAgents() {
         }
         assignedCount++;
     }
+    agentsAssigned = true;
     return true;
 }
     private void releaseAssignedAgents(){
@@ -110,7 +113,7 @@ public boolean assignAgents() {
         }
     }
     public boolean accept(){//make sure assignAgents() is called before accept()
-        if (status == MissionStatus.CREATED){
+        if (status == MissionStatus.CREATED && agentsAssigned){
             status = MissionStatus.ASSIGNED;
             return true;
         }
