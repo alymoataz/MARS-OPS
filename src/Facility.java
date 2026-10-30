@@ -9,12 +9,13 @@ public class Facility {
     private ResourceInventory inventory;
     private ArrayList<Equipment> equipment;
 
-    public Facility(String name, String location, int capacity,  ResourceInventory inventory) {
+    public Facility(String name, String location, int capacity, ResourceInventory inventory) {
         this.name = name;
         this.location = location;
         this.capacity = capacity;
         this.operational = true;
         this.inventory = inventory;
+        this.equipment = new ArrayList<>();
     }
 
 
@@ -72,7 +73,7 @@ public class Facility {
     public void consumeMedicalSupplies(){
         inventory.removeMedicalSupplies(1);
     }
-    
+
     public void addEquipment(Equipment e) {
         equipment.add(e);
     }
