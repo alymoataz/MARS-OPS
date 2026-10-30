@@ -50,15 +50,19 @@ public abstract class Mission {
     public String getFailureReason(){
         return failureReason;
     }
-    public boolean advanceTime(){
-        if (status == MissionStatus.IN_PROGRESS){
-            elapsedTime++;
-            if (elapsedTime >=  duration){
-                this.complete();
-            }
-            return true;
+    public boolean advanceTime(int timeUnits) {
+        if (status != MissionStatus.IN_PROGRESS) {
+            return false;
         }
-        return false;
+        if (timeUnits <= 0) {
+            return false;
+        }
+        elapsedTime += timeUnits;
+        if (elapsedTime >= duration) {
+            elapsedTime = duration; //prevent elapsed time from exceeding duration
+            complete();
+        }
+        return true;
     }
     public boolean complete(){
         if (status == MissionStatus.IN_PROGRESS){
