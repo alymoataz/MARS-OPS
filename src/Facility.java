@@ -1,10 +1,13 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class Facility {
     private String name;
     private String location;
     private int capacity;
     private boolean operational;
     private ResourceInventory inventory;
-
+    private ArrayList<Equipment> equipment;
 
     public Facility(String name, String location, int capacity,  ResourceInventory inventory) {
         this.name = name;
@@ -68,5 +71,13 @@ public class Facility {
 
     public void consumeMedicalSupplies(){
         inventory.removeMedicalSupplies(1);
+    }
+    
+    public void addEquipment(Equipment e) {
+        equipment.add(e);
+    }
+
+    public List<Equipment> getEquipment() {
+        return List.copyOf(equipment);
     }
 }
