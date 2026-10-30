@@ -13,7 +13,7 @@ public abstract class Mission {
     private int duration;
     private int elapsedTime;
     private Set<CrewMember.Skill> requiredSkills;
-    private ArrayList<Agent> assignedAgents;
+    private ArrayList<Agent> assignedAgents;//the team intended for this mission
     private String failureReason;
     public Mission(int duration, Set<CrewMember.Skill> requiredSkills, List<Agent> assignedAgents){// check in Colony that assignedAgents is not an empty list
         if (duration <= 0 || requiredSkills == null || assignedAgents == null){
@@ -130,5 +130,6 @@ public boolean assignAgents() {
         }
         return false;
     }
+    public abstract boolean validateRequirements();
     
 }
