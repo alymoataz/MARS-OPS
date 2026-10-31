@@ -356,6 +356,9 @@ public class Colony {
 
         System.out.println("\nAgents: " + agents.size());
         System.out.println("Facilities: " + facilities.size());
+        for (Facility facility : facilities) {
+            System.out.println("- " + facility.getName());
+        }
 
         System.out.println("\nActive Mission:");
 
