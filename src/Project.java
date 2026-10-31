@@ -117,6 +117,177 @@ public class Project {
 
         System.out.println("Mission status: " + exploration.getStatus());
 
+        // Create damaged equipment
+        Equipment equipment = new Equipment("Solar Panel");
+        equipment.damage();
+
+        // Create a valid repair team
+        ArrayList<Agent> repairAgents = new ArrayList<>();
+        repairAgents.add(engineer);
+        repairAgents.add(repairRobot);
+
+        // Create repair mission
+        Repair repairMission = new Repair(
+            2,
+            repairAgents,
+            equipment,
+            5
+        );
+
+        // Resources required
+        ResourceInventory repairResources = new ResourceInventory();
+        repairResources.setSpareParts(5);
+
+        // Submit mission
+        boolean repairAccepted = colony.submitMission(
+            repairMission,
+            repairResources
+        );
+
+        System.out.println("Repair mission accepted: " + repairAccepted);
+
+        // Complete mission
+        colony.advanceMission(2);
+
+        System.out.println("Equipment operational: " + equipment.isOperational());
+
+        // Create Research mission
+        ArrayList<Agent> researchAgents = new ArrayList<>();
+        researchAgents.add(scientist);
+
+        Research researchMission = new Research(
+            2,
+            researchAgents,
+            CrewMember.Skill.GEOLOGY,
+            laboratory,
+            5
+        );
+
+        // Required resources
+        ResourceInventory researchResources = new ResourceInventory();
+        researchResources.setWater(5);
+
+        // Submit mission
+        boolean researchAccepted = colony.submitMission(
+            researchMission,
+            researchResources
+        );
+
+        System.out.println("Research mission accepted: " + researchAccepted);
+
+        // Complete mission
+        colony.advanceMission(2);
+
+        System.out.println("Research mission status: " + researchMission.getStatus());
+
+        communication.setSignalStrength(100);
+        communication.establishConnection();
+
+        // Create Rescue mission
+        ArrayList<Agent> rescueAgents = new ArrayList<>();
+        rescueAgents.add(rover);
+        rescueAgents.add(engineer);
+
+        Rescue rescueMission = new Rescue(
+            2,
+            rescueAgents,
+            rover,
+            communication
+        );
+
+        // Required resources
+        ResourceInventory rescueResources = new ResourceInventory();
+
+        // Submit mission
+        boolean rescueAccepted = colony.submitMission(
+            rescueMission,
+            rescueResources
+        );
+
+        System.out.println("Rescue mission accepted: " + rescueAccepted);
+
+        // Complete mission
+        colony.advanceMission(2);
+
+        System.out.println("Rescue mission status: " + rescueMission.getStatus());
+
+        // Test insufficient resources
+        ResourceInventory shortageResources = new ResourceInventory();
+        shortageResources.setSpareParts(1000);
+
+        // Record resources before submission
+        double spareBefore = colony.getTotalResources().getSpareParts();
+
+        // Create a Repair mission
+        ArrayList<Agent> shortageAgents = new ArrayList<>();
+        shortageAgents.add(engineer);
+        shortageAgents.add(repairRobot);
+
+        Equipment anotherEquipment = new Equipment("Damaged Generator");
+        anotherEquipment.damage();
+
+        Repair shortageMission = new Repair(
+            2, shortageAgents, anotherEquipment, 1000
+        );
+
+        // Submit mission
+        boolean shortageAccepted = colony.submitMission(
+            shortageMission, shortageResources
+        );
+
+        System.out.println("Shortage mission accepted: " + shortageAccepted);
+        System.out.println("Mission status: " + shortageMission.getStatus());
+        System.out.println("Spare parts before: " + spareBefore);
+        System.out.println("Spare parts after: " + colony.getTotalResources().getSpareParts());
+
+        // Create an oxygen leak emergency
+        Emergency oxygenLeak = new Emergency(
+            "E001",
+            habitat,
+            Emergency.EmergencyType.OxygenLeak,
+            4
+        );
+
+        // Handle the emergency
+        colony.handleEmergency(oxygenLeak);
+
+        // Display result
+        System.out.println("Emergency status: " +
+            oxygenLeak.getEmergencyStatus());
+
+        System.out.println("Engineer available: " +
+            engineer.isAvailable());
+
+        System.out.println("Repair Robot available: " +
+            repairRobot.isAvailable());
+
+        // Change the environment to a dust storm
+        colony.setEnvironment(Colony.Environment.DUST_STORM);
+
+        // Create a new Exploration mission
+        ArrayList<Agent> stormAgents = new ArrayList<>();
+        stormAgents.add(rover);
+        stormAgents.add(scientist);
+
+        Exploration stormMission = new Exploration(
+            3,
+            stormAgents
+        );
+
+        // Submit the mission
+        ResourceInventory stormResources = new ResourceInventory();
+
+        boolean stormAccepted = colony.submitMission(
+            stormMission,
+            stormResources
+        );
+
+        System.out.println("Exploration during dust storm accepted: " + stormAccepted);
+        System.out.println("Mission status: " + stormMission.getStatus());
+
+        // Restore normal environment
+        colony.setEnvironment(Colony.Environment.NORMAL);
+
         // Display colony status
         colony.displayStatusReport();
     }
