@@ -9,9 +9,10 @@ public abstract class Agent {
         this.name=name;
         this.id=id;
         this.available =true;
-
-
     }
+
+
+
     public boolean isValidString(String s){
         return s!=null && !s.isBlank();
     }
