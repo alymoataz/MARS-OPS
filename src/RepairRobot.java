@@ -9,7 +9,7 @@ public class RepairRobot extends Robot{
 
     @Override
     public boolean canHandleEmergency(Emergency e){
-        return(e.getEmergencyType()== Emergency.EmergencyType.OxygenLeak||e.getEmergencyType()== Emergency.EmergencyType.RoverBreakdown);
+        return(e!=null&& e.getEmergencyType()== Emergency.EmergencyType.OxygenLeak||e.getEmergencyType()== Emergency.EmergencyType.RoverBreakdown);
 
     }
 }

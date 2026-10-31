@@ -6,7 +6,7 @@ public class Scientist extends CrewMember {
     }
     @Override
     public boolean canHandleEmergency(Emergency e){ //WAIT ALSO
-        if(e!=null&& e.getEmergencyType()!= Emergency.EmergencyType.Fire)
+        if(e==null&& e.getEmergencyType()!= Emergency.EmergencyType.Fire)
             return false;
         return true;
     }
