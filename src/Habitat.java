@@ -29,7 +29,9 @@ public class Habitat extends Facility{
     public void setLifeSupportActive(boolean lifeSupportActive) {
         this.lifeSupportActive = lifeSupportActive;
     }
-
+    public boolean isLifeSupportActive() {
+        return lifeSupportActive;
+    }
 
     public void reduceOxygen(double amount) {
         if (amount > 0 ) {
