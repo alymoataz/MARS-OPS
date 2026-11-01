@@ -13,7 +13,7 @@ public class Emergency {
         Resolved,
         Unresolved
     }
-
+    private String failureReason;
     private String emergencyID;
     private Facility location;
     private ExplorationRover affectedRover;
@@ -103,6 +103,18 @@ public class Emergency {
         }
 
         this.status = status;
+        return true;
+    }
+    public String getFailureReason() {
+        return failureReason;
+    }
+
+    public boolean markUnresolved(String reason) {
+        if (reason == null || reason.isBlank()) {
+            return false;
+        }
+        this.failureReason = reason;
+        this.status = EmergencyStatus.Unresolved;
         return true;
     }
 }

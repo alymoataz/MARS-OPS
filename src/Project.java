@@ -94,7 +94,9 @@ public class Project {
             3,
             explorationAgents
         );
-
+        System.out.println("=== SCENARIO 1: Successful exploration - state BEFORE ===");
+        colony.displayStatusReport();
+        System.out.println("Scientist available: " + scientist.isAvailable() + ", Rover available: " + rover.isAvailable());
         // Submit the mission
         ResourceInventory explorationResources = new ResourceInventory();
         explorationResources.setFuel(10);
@@ -116,6 +118,9 @@ public class Project {
         colony.advanceMission(2);
 
         System.out.println("Mission status: " + exploration.getStatus());
+        System.out.println("=== SCENARIO 1: state AFTER ===");
+        colony.displayStatusReport();
+        System.out.println("Scientist available: " + scientist.isAvailable() + ", Rover available: " + rover.isAvailable());
 
         // Create damaged equipment
         Equipment equipment = new Equipment("Solar Panel");
@@ -210,6 +215,18 @@ public class Project {
         colony.advanceMission(2);
 
         System.out.println("Rescue mission status: " + rescueMission.getStatus());
+        // Scenario 2: mission rejection (unsuitable agent)
+        System.out.println("=== SCENARIO 2: Mission rejection ===");
+        ArrayList<Agent> badAgents = new ArrayList<>();
+        badAgents.add(rover);
+        badAgents.add(engineer); // an Engineer has no GEOLOGY skill
+        Exploration badMission = new Exploration(3, badAgents);
+        boolean badAccepted = colony.submitMission(badMission, new ResourceInventory());
+        System.out.println("Unsuitable-agent mission accepted: " + badAccepted);
+        System.out.println("Mission status: " + badMission.getStatus());
+        System.out.println("Reason: " + badMission.getFailureReason());
+        System.out.println("Active mission: " + colony.getActiveMission());
+        System.out.println("Engineer available: " + engineer.isAvailable());
 
         // Test insufficient resources
         ResourceInventory shortageResources = new ResourceInventory();
@@ -236,7 +253,9 @@ public class Project {
         );
 
         System.out.println("Shortage mission accepted: " + shortageAccepted);
+        System.out.println("=== SCENARIO 3: Resource shortage ===");
         System.out.println("Mission status: " + shortageMission.getStatus());
+        System.out.println("Reason: " + shortageMission.getFailureReason());
         System.out.println("Spare parts before: " + spareBefore);
         System.out.println("Spare parts after: " + colony.getTotalResources().getSpareParts());
 
@@ -249,7 +268,21 @@ public class Project {
         );
 
         // Handle the emergency
+        System.out.println("=== SCENARIO 4: Emergency handling ===");
+        System.out.println("Habitat oxygen before leak: " + habitat.getInventory().getOxygen());
         colony.handleEmergency(oxygenLeak);
+        System.out.println("Habitat oxygen after leak: " + habitat.getInventory().getOxygen());
+        System.out.println("Failure reason: " + oxygenLeak.getFailureReason());
+
+        // Unresolved case: repair robot is damaged, so no valid responder exists
+        repairRobot.setDamageStatus(Robot.DamageStatus.DAMAGED);
+        Emergency unresolvedLeak = new Emergency("E002", habitat, Emergency.EmergencyType.OxygenLeak, 4);
+        System.out.println("Habitat oxygen before 2nd leak: " + habitat.getInventory().getOxygen());
+        colony.handleEmergency(unresolvedLeak);
+        System.out.println("2nd emergency status: " + unresolvedLeak.getEmergencyStatus());
+        System.out.println("Reason: " + unresolvedLeak.getFailureReason());
+        System.out.println("Habitat oxygen after 2nd leak: " + habitat.getInventory().getOxygen());
+        repairRobot.setDamageStatus(Robot.DamageStatus.OPERATIONAL);
 
         // Display result
         System.out.println("Emergency status: " +
@@ -283,7 +316,9 @@ public class Project {
         );
 
         System.out.println("Exploration during dust storm accepted: " + stormAccepted);
+        System.out.println("=== SCENARIO 5: Environmental effect ===");
         System.out.println("Mission status: " + stormMission.getStatus());
+        System.out.println("Reason: " + stormMission.getFailureReason());
 
         // Restore normal environment
         colony.setEnvironment(Colony.Environment.NORMAL);

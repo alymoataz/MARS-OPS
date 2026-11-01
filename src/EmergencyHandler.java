@@ -4,14 +4,18 @@ public class EmergencyHandler {
 
     private List<Agent> agents;
     private List<Facility> facilities;
+    private final Colony colony;
+    private static final double OXYGEN_LEAK_LOSS = 10;
+    private static final double LEAK_SPARE_PARTS = 2;
+    private static final double LEAK_BATTERY = 5;
 
-    public EmergencyHandler(List<Agent> agents, List<Facility> facilities) {
-        if (agents == null || facilities == null) {
-            throw new IllegalArgumentException("Lists cannot be null.");
+    public EmergencyHandler(List<Agent> agents, List<Facility> facilities, Colony colony) {
+        if (agents == null || facilities == null || colony == null) {
+            throw new IllegalArgumentException("Arguments cannot be null.");
         }
-
         this.agents = List.copyOf(agents);
         this.facilities = List.copyOf(facilities);
+        this.colony = colony;
     }
 
     public void handleEmergency(Emergency emergency) {
@@ -47,84 +51,75 @@ public class EmergencyHandler {
     // OXYGEN LEAK
 
     private void handleOxygenLeak(Emergency emergency) {
-
-        Habitat habitat = null;
-
         if (emergency.getLocation() == null) {
-            emergency.setEmergencyStatus(Emergency.EmergencyStatus.Unresolved);
+            emergency.markUnresolved("Oxygen leak has no location.");
             return;
         }
-
+        Habitat habitat = null;
         for (Facility f : facilities) {
             if (f instanceof Habitat &&
-                f.getLocation().equalsIgnoreCase(
-                    emergency.getLocation().getLocation())) {
-
+                    f.getLocation().equalsIgnoreCase(emergency.getLocation().getLocation())) {
                 habitat = (Habitat) f;
                 break;
             }
         }
-
         if (habitat == null) {
-            emergency.setEmergencyStatus(Emergency.EmergencyStatus.Unresolved);
+            emergency.markUnresolved("No habitat found at the leak location.");
             return;
         }
+
+        // initial oxygen loss when the leak is detected
+        habitat.reduceOxygen(OXYGEN_LEAK_LOSS);
 
         Engineer engineer = null;
         RepairRobot robot = null;
-
-        // Find suitable responders
         for (Agent a : agents) {
-
-            if (!a.isAvailable() || !a.isUsable() ||
-                !a.canHandleEmergency(emergency)) {
+            if (!a.isAvailable() || !a.isUsable() || !a.canHandleEmergency(emergency)) {
                 continue;
             }
-
-            if (a instanceof Engineer && engineer == null) {
-                engineer = (Engineer) a;
-            }
-
-            if (a instanceof RepairRobot && robot == null) {
-                robot = (RepairRobot) a;
-            }
+            if (a instanceof Engineer && engineer == null) engineer = (Engineer) a;
+            if (a instanceof RepairRobot && robot == null) robot = (RepairRobot) a;
         }
-
-        // Both responders are required
         if (engineer == null || robot == null) {
-            emergency.setEmergencyStatus(Emergency.EmergencyStatus.Unresolved);
+            habitat.reduceOxygen(OXYGEN_LEAK_LOSS); // unresolved: second loss
+            emergency.markUnresolved("Required responders (engineer and repair robot) are unavailable.");
             return;
         }
 
-        // Assign responders
         if (!engineer.assign()) {
-            emergency.setEmergencyStatus(Emergency.EmergencyStatus.Unresolved);
+            habitat.reduceOxygen(OXYGEN_LEAK_LOSS);
+            emergency.markUnresolved("Engineer could not be assigned.");
             return;
         }
-
         if (!robot.assign()) {
             engineer.release();
-            emergency.setEmergencyStatus(Emergency.EmergencyStatus.Unresolved);
+            habitat.reduceOxygen(OXYGEN_LEAK_LOSS);
+            emergency.markUnresolved("Repair robot could not be assigned.");
+            return;
+        }
+
+        // response resources, all-or-nothing
+        ResourceInventory needed = new ResourceInventory();
+        needed.setSpareParts(LEAK_SPARE_PARTS);
+        needed.setBatteryPower(LEAK_BATTERY);
+        if (!colony.consumeResources(needed)) {
+            engineer.release();
+            robot.release();
+            habitat.reduceOxygen(OXYGEN_LEAK_LOSS);
+            emergency.markUnresolved("Insufficient resources for the repair (spare parts / battery).");
             return;
         }
 
         try {
             engineer.setLocation(habitat);
             robot.setLocation(habitat);
-
             emergency.setEmergencyStatus(Emergency.EmergencyStatus.InProgress);
-
-            // Oxygen lost because of the leak
-            habitat.reduceOxygen(10);
-
-            boolean repaired = habitat.repairOxygenleak();
-
-            if (repaired) {
+            if (habitat.repairOxygenleak()) {
                 emergency.setEmergencyStatus(Emergency.EmergencyStatus.Resolved);
             } else {
-                emergency.setEmergencyStatus(Emergency.EmergencyStatus.Unresolved);
+                habitat.reduceOxygen(OXYGEN_LEAK_LOSS);
+                emergency.markUnresolved("Repair attempt failed.");
             }
-
         } finally {
             engineer.release();
             robot.release();

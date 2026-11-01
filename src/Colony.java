@@ -343,7 +343,7 @@ public class Colony {
             throw new IllegalArgumentException("Emergency cannot be null.");
         }
 
-        EmergencyHandler handler = new EmergencyHandler(agents, facilities);
+        EmergencyHandler handler = new EmergencyHandler(agents, facilities, this);
 
         handler.handleEmergency(emergency);
     }

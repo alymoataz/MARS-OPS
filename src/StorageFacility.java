@@ -44,7 +44,7 @@ public class StorageFacility extends Facility {
             System.out.println("Exceeds storage capacity");
             return false;
         }
-        currentStorageUsed=+amount;
+        currentStorageUsed+=amount;
         return true;
     }
 }
