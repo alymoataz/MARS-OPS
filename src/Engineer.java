@@ -7,7 +7,7 @@ public class Engineer extends CrewMember{
 
     @Override
     public boolean canHandleEmergency(Emergency e){ //WAIT ALSO
-        if(e.getEmergencyType()== Emergency.EmergencyType.OxygenLeak||e.getEmergencyType()== Emergency.EmergencyType.RoverBreakdown)
+        if(e!=null&& (e.getEmergencyType()== Emergency.EmergencyType.OxygenLeak||e.getEmergencyType()== Emergency.EmergencyType.RoverBreakdown))
             return true;
         return false;
     }

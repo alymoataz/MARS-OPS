@@ -4,282 +4,308 @@ public class EmergencyHandler {
 
     private List<Agent> agents;
     private List<Facility> facilities;
+    private final Colony colony;
+    private static final double OXYGEN_LEAK_LOSS = 10;
+    private static final double LEAK_SPARE_PARTS = 2;
+    private static final double LEAK_BATTERY = 5;
 
-
-    public EmergencyHandler(List <Agent> agents, List <Facility> facilities){
-        this.agents=agents;
-        this.facilities=facilities;
+    public EmergencyHandler(List<Agent> agents, List<Facility> facilities, Colony colony) {
+        if (agents == null || facilities == null || colony == null) {
+            throw new IllegalArgumentException("Arguments cannot be null.");
+        }
+        this.agents = List.copyOf(agents);
+        this.facilities = List.copyOf(facilities);
+        this.colony = colony;
     }
 
+    public void handleEmergency(Emergency emergency) {
 
+        if (emergency == null) {
+            throw new IllegalArgumentException("Null emergency.");
+        }
 
-   public void handleEmergency(Emergency emergency){
+        if (emergency.getEmergencyStatus() != Emergency.EmergencyStatus.Reported) {
+            return;
+        }
 
-       if(emergency==null)
-           throw new IllegalArgumentException("null input"); //report error
+        switch (emergency.getEmergencyType()) {
 
-       if(emergency.getEmergencyStatus()!= Emergency.EmergencyStatus.Reported)
-           return; //continue normally , not an error
+            case OxygenLeak:
+                handleOxygenLeak(emergency);
+                break;
 
-      switch (emergency.getType()){
+            case Fire:
+                handleFire(emergency);
+                break;
 
-          case Emergency.EmergencyType.OxygenLeak:
-              handleOxygenLeak(emergency);
-              break;
+            case RoverBreakdown:
+                handleRoverBreakdown(emergency);
+                break;
 
-          case Emergency.EmergencyType.Fire:
-              handleFire(emergency);
-               break;
+            case MedicalEmergency:
+                handleMedicalEmergency(emergency);
+                break;
+        }
+    }
 
-          case Emergency.EmergencyType.RoverBreakdown:
-              handleRoverbreakdown(emergency);
-              break;
-
-          case Emergency.EmergencyType.MedicalEmergency:
-              handleMedicalEmergency(emergency);
-              break;
-
-      }
-
-
-
-
-
-   }
+    // OXYGEN LEAK
 
     private void handleOxygenLeak(Emergency emergency) {
-
-
-
+        if (emergency.getLocation() == null) {
+            emergency.markUnresolved("Oxygen leak has no location.");
+            return;
+        }
         Habitat habitat = null;
-
-        for (Facility f : facilities) {  //see which of your habitats is affected
-            if (f instanceof Habitat && f.getLocation().equalsIgnoreCase(emergency.getLocation().getLocation())) {
+        for (Facility f : facilities) {
+            if (f instanceof Habitat &&
+                    f.getLocation().equalsIgnoreCase(emergency.getLocation().getLocation())) {
                 habitat = (Habitat) f;
                 break;
             }
         }
-
         if (habitat == null) {
-            emergency.setEmergencyStatus(
-                    Emergency.EmergencyStatus.Unresolved);
+            emergency.markUnresolved("No habitat found at the leak location.");
             return;
         }
 
-// Deducting the initial oxygen loss , Problem begins
-        habitat.reduceOxygen(10);
+        // initial oxygen loss when the leak is detected
+        habitat.reduceOxygen(OXYGEN_LEAK_LOSS);
 
-        Agent human = null;
-        Agent robot = null;
-
-// Finding a capable human and robot
+        Engineer engineer = null;
+        RepairRobot robot = null;
         for (Agent a : agents) {
-            if (a.isAvailable() && a.canHandleEmergency(emergency)) {
-
-                if (a instanceof CrewMember && human == null) {
-                    human = a;
-                } else if (a instanceof Robot && robot == null) {
-                    robot = a;
-                }
+            if (!a.isAvailable() || !a.isUsable() || !a.canHandleEmergency(emergency)) {
+                continue;
             }
+            if (a instanceof Engineer && engineer == null) engineer = (Engineer) a;
+            if (a instanceof RepairRobot && robot == null) robot = (RepairRobot) a;
         }
-
-// Both responders are required
-        if (human == null || robot == null) {
-            habitat.reduceOxygen(10); //corrupt increases!
-            emergency.setEmergencyStatus(
-                    Emergency.EmergencyStatus.Unresolved);
+        if (engineer == null || robot == null) {
+            habitat.reduceOxygen(OXYGEN_LEAK_LOSS); // unresolved: second loss
+            emergency.markUnresolved("Required responders (engineer and repair robot) are unavailable.");
             return;
         }
 
-        human.assign();
-        robot.assign();
-        human.setLocation(habitat); //moving them, dispatching
-        robot.setLocation(habitat);
-
-        emergency.setEmergencyStatus(
-                Emergency.EmergencyStatus.InProgress);
-
-        boolean repaired = habitat.repairOxygenleak();
-
-        if (repaired) {
-            emergency.setEmergencyStatus(
-                    Emergency.EmergencyStatus.Resolved);
-        } else {
-            habitat.reduceOxygen(10);
-            emergency.setEmergencyStatus(
-                    Emergency.EmergencyStatus.Unresolved);
+        if (!engineer.assign()) {
+            habitat.reduceOxygen(OXYGEN_LEAK_LOSS);
+            emergency.markUnresolved("Engineer could not be assigned.");
+            return;
+        }
+        if (!robot.assign()) {
+            engineer.release();
+            habitat.reduceOxygen(OXYGEN_LEAK_LOSS);
+            emergency.markUnresolved("Repair robot could not be assigned.");
+            return;
         }
 
-        human.release();
-        robot.release();
+        // response resources, all-or-nothing
+        ResourceInventory needed = new ResourceInventory();
+        needed.setSpareParts(LEAK_SPARE_PARTS);
+        needed.setBatteryPower(LEAK_BATTERY);
+        if (!colony.consumeResources(needed)) {
+            engineer.release();
+            robot.release();
+            habitat.reduceOxygen(OXYGEN_LEAK_LOSS);
+            emergency.markUnresolved("Insufficient resources for the repair (spare parts / battery).");
+            return;
+        }
+
+        try {
+            engineer.setLocation(habitat);
+            robot.setLocation(habitat);
+            emergency.setEmergencyStatus(Emergency.EmergencyStatus.InProgress);
+            if (habitat.repairOxygenleak()) {
+                emergency.setEmergencyStatus(Emergency.EmergencyStatus.Resolved);
+            } else {
+                habitat.reduceOxygen(OXYGEN_LEAK_LOSS);
+                emergency.markUnresolved("Repair attempt failed.");
+            }
+        } finally {
+            engineer.release();
+            robot.release();
+        }
     }
 
+    // FIRE
 
+    private void handleFire(Emergency emergency) {
 
-    private void handleFire(Emergency emergency){
+        Laboratory laboratory = null;
 
-        Laboratory laboratory=null;
-
-        for (Facility f : facilities){
-            if(f instanceof Laboratory && f.getLocation().equals(emergency.getLocation().getLocation()))
-               laboratory=(Laboratory) f;
-               break;
+        if (emergency.getLocation() == null) {
+            emergency.setEmergencyStatus(Emergency.EmergencyStatus.Unresolved);
+            return;
         }
 
-        if(laboratory==null){
-            emergency.setEmergencyStatus(Emergency.EmergencyStatus.Unresolved); //lab location in emergency doesn't match a location in my list of labs
-        }
+        for (Facility f : facilities) {
 
-        Agent responder =null; // search agent in list
+            if (f instanceof Laboratory &&
+                f.getLocation().equalsIgnoreCase(
+                    emergency.getLocation().getLocation())) {
 
-        for (Agent a : agents){
-            if(a.canHandleEmergency(emergency) && a.isAvailable()){
-                responder=a; //copy reference from agent reference a a to agent refernece called responder
+                laboratory = (Laboratory) f;
                 break;
             }
+        }
 
-            if(responder==null){
-                emergency.setEmergencyStatus(Emergency.EmergencyStatus.Unresolved);
-                return;
+        if (laboratory == null) {
+            emergency.setEmergencyStatus(Emergency.EmergencyStatus.Unresolved);
+            return;
+        }
+
+        Agent responder = null;
+
+        for (Agent a : agents) {
+
+            if (a.isAvailable() && a.isUsable() &&
+                a.canHandleEmergency(emergency)) {
+
+                responder = a;
+                break;
             }
+        }
 
-            responder.assign();
+        if (responder == null || !responder.assign()) {
+            emergency.setEmergencyStatus(Emergency.EmergencyStatus.Unresolved);
+            return;
+        }
+
+        try {
             responder.setLocation(laboratory);
+
             emergency.setEmergencyStatus(Emergency.EmergencyStatus.InProgress);
 
-            boolean extinguished= laboratory.repairFire();
+            boolean extinguished = laboratory.repairFire();
 
-            if(extinguished){
+            if (extinguished) {
                 emergency.setEmergencyStatus(Emergency.EmergencyStatus.Resolved);
             } else {
                 emergency.setEmergencyStatus(Emergency.EmergencyStatus.Unresolved);
             }
 
+        } finally {
             responder.release();
-
         }
-
-
     }
 
+    // MEDICAL EMERGENCY
 
-    private void handleMedicalEmergency(Emergency emergency){
+    private void handleMedicalEmergency(Emergency emergency) {
+
+        if (emergency.getLocation() == null) {
+            emergency.setEmergencyStatus(Emergency.EmergencyStatus.Unresolved);
+            return;
+        }
 
         CrewMember patient = null;
 
+        // Find the injured crew member
         for (Agent a : agents) {
-            if (a instanceof CrewMember && a.getCurrentLoc().getLocation().equals(emergency.getLocation().getLocation())){ //law a points to a crewmember object or any subclasses of it
 
-                patient = (CrewMember) a; //casting to use patient. with crewmember fields
-                break;                   //law mn8er casting invalid
+            if (a instanceof CrewMember &&
+                a.getCurrentLoc() != null &&
+                a.getCurrentLoc().getLocation().equalsIgnoreCase(
+                    emergency.getLocation().getLocation())) {
+
+                patient = (CrewMember) a;
+                break;
             }
         }
 
         Agent medicalOfficer = null;
 
+        // Find an available medical responder
         for (Agent a : agents) {
-            if (a.isAvailable() && a.canHandleEmergency(emergency) && a.isAvailable()) {
+
+            if (a != patient && a.isAvailable() && a.isUsable() &&
+                a.canHandleEmergency(emergency)) {
+
                 medicalOfficer = a;
                 break;
             }
         }
 
         if (patient == null || medicalOfficer == null) {
-            emergency.setEmergencyStatus(
-                    Emergency.EmergencyStatus.Unresolved);
+            emergency.setEmergencyStatus(Emergency.EmergencyStatus.Unresolved);
             return;
         }
 
-        Facility facility=null;
+        Facility facility = null;
 
-        for(Facility f : facilities){
-            if(f.getLocation().equalsIgnoreCase(emergency.getLocation().getLocation())){
-                facility=f;
+        for (Facility f : facilities) {
+
+            if (f.getLocation().equalsIgnoreCase(
+                emergency.getLocation().getLocation())) {
+
+                facility = f;
                 break;
             }
         }
 
-
-        if (facility == null) {
-            emergency.setEmergencyStatus(
-                    Emergency.EmergencyStatus.Unresolved);
+        if (facility == null || !facility.hasMedicalSupplies()) {
+            emergency.setEmergencyStatus(Emergency.EmergencyStatus.Unresolved);
             return;
         }
 
-        if (!facility.hasMedicalSupplies()) {
-            emergency.setEmergencyStatus(
-                    Emergency.EmergencyStatus.Unresolved);
+        if (!medicalOfficer.assign()) {
+            emergency.setEmergencyStatus(Emergency.EmergencyStatus.Unresolved);
             return;
         }
 
-        medicalOfficer.assign();
-        medicalOfficer.setLocation(facility); //move to patient's injured facility
+        try {
+            medicalOfficer.setLocation(facility);
 
-        emergency.setEmergencyStatus(
-                Emergency.EmergencyStatus.InProgress);
-
-        facility.consumeMedicalSupplies();
-        patient.increaseHealth();
-
-        emergency.setEmergencyStatus(
-                Emergency.EmergencyStatus.Resolved);
-
-        medicalOfficer.release();
-
-    }
-
-
-    private void handleRoverbreakdown(Emergency emergency){
-
-
-
-            Facility location = emergency.getLocation();
-
-
-            if (!(location instanceof Rover)) {
-                System.out.println("Emergency location is not a rover.");
-                emergency.setEmergencyStatus(Emergency.EmergencyStatus.Unresolved);
-                return;
-            }
-
-
-            Rover rover = (Rover) location;
-
-
-            Agent responder = null;
-
-            for (Agent a : agents) {
-                if (a.isAvailable() && a.canHandleEmergency(emergency)) {
-                    responder = a;
-                    break;
-                }
-            }
-
-
-            if (responder == null) {
-                System.out.println("No available agent to repair the rover");
-                emergency.setEmergencyStatus(Emergency.EmergencyStatus.Unresolved);
-                return;
-            }
-
-
-            responder.assign();
             emergency.setEmergencyStatus(Emergency.EmergencyStatus.InProgress);
 
+            facility.consumeMedicalSupplies();
+            patient.increaseHealth();
 
-            rover.repair();
+            emergency.setEmergencyStatus(Emergency.EmergencyStatus.Resolved);
 
-        emergency.setEmergencyStatus(Emergency.EmergencyStatus.Resolved);
+        } finally {
+            medicalOfficer.release();
+        }
+    }
 
+    // ROVER BREAKDOWN
 
-            responder.release();
+    private void handleRoverBreakdown(Emergency emergency) {
+
+        ExplorationRover rover = emergency.getAffectedRover();
+
+        if (rover == null) {
+            emergency.setEmergencyStatus(Emergency.EmergencyStatus.Unresolved);
+            return;
         }
 
+        Agent responder = null;
 
+        // Find a suitable repair responder
+        for (Agent a : agents) {
 
+            if (a != rover && a.isAvailable() && a.isUsable() &&
+                a.canHandleEmergency(emergency)) {
 
+                responder = a;
+                break;
+            }
+        }
 
+        if (responder == null || !responder.assign()) {
+            emergency.setEmergencyStatus(Emergency.EmergencyStatus.Unresolved);
+            return;
+        }
 
+        try {
+            emergency.setEmergencyStatus(Emergency.EmergencyStatus.InProgress);
 
+            // Restore the rover's operational condition
+            rover.setDamageStatus(Robot.DamageStatus.OPERATIONAL);
+
+            emergency.setEmergencyStatus(Emergency.EmergencyStatus.Resolved);
+
+        } finally {
+            responder.release();
+        }
+    }
 }

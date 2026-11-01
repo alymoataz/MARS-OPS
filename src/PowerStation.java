@@ -2,10 +2,11 @@ public class PowerStation extends Facility {
 
     private double generationRate;
     private boolean generatorActive;
-
     public PowerStation(String name, String location, int capacity,
-                        double generationRate) {
-        super(name, location, capacity);
+                        ResourceInventory inventory, double generationRate) {
+
+        super(name, location, capacity, inventory);
+
         this.generationRate = generationRate;
         this.generatorActive = false;
     }

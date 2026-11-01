@@ -4,8 +4,10 @@ public class StorageFacility extends Facility {
     private double currentStorageUsed;
 
     public StorageFacility(String name, String location, int capacity,
-                           double storageCapacity) {
-        super(name, location, capacity);
+                        ResourceInventory inventory, double storageCapacity) {
+
+        super(name, location, capacity, inventory);
+
         this.storageCapacity = storageCapacity;
         this.currentStorageUsed = 0;
     }
@@ -42,7 +44,7 @@ public class StorageFacility extends Facility {
             System.out.println("Exceeds storage capacity");
             return false;
         }
-        currentStorageUsed=+amount;
+        currentStorageUsed+=amount;
         return true;
     }
 }
