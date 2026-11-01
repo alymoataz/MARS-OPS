@@ -34,8 +34,9 @@ public class Habitat extends Facility{
     }
 
     public void reduceOxygen(double amount) {
-        if (amount > 0 ) {
-            getInventory().setOxygen(amount);
+        if (amount > 0) {
+            double remaining = getInventory().getOxygen() - amount;
+            getInventory().setOxygen(Math.max(0, remaining));
         }
     }
 
